@@ -1,0 +1,99 @@
+<div class="row">
+  <div class="col-lg-2 d-none d-lg-block">
+    <app-sidebar *ngIf="quotes" [quotes]="quotes" (categoryChanged)="changeCategory($event)"></app-sidebar>
+  </div>
+
+  <div class="col-lg-10">
+    <div class="row mb-3">
+      <div class="col-sm-5">
+        <div class="form-group has-search">
+          <fa-icon [icon]="faSearch" class="form-control-feedback"></fa-icon>
+          <input type="search" #text id="text" (input)="filterQuotes(text.value)" class="form-control" placeholder="Search by quote or author..."
+            autofocus>
+        </div>
+      </div>
+      <div class="col-sm-7">
+        <div class="text-center">
+          <button type="button" (click)="toggleAddQuoteForm()" class="btn lightBlueBackground">
+            <fa-icon [icon]="faPlus"></fa-icon>
+            Add New
+          </button>
+        </div>
+
+        <app-add-quote (quoteAdded)="addQuote($event)" *ngIf="showAddQuoteForm"></app-add-quote>
+      </div>
+    </div>
+
+    <div *ngIf="quotes; else spinner">
+      <div class="row">
+        <div class="col-lg-3 col-sm-6 mb-3 quotes" *ngFor="let quote of quotes">
+          <div class="lightGoldBackground card">
+            <div class="card-body">
+              <p class="card-text pb-5">
+                <fa-icon [icon]="faQuoteLeft"></fa-icon> {{quote.quote}}
+              </p>
+              <small class="card-subtitle text-muted authorPosition">&mdash; {{quote.author}}</small>
+
+              <a (click)='deleteQuote(quote.id)' class="deleteBtnPosition" title="Delete Quote">
+                <fa-icon [icon]="faTimesCircle"></fa-icon>
+              </a>
+              <button type="button" (click)="copyQuote(quote.quote, quote.author)" class="btn lightBackground copyCardIcon"
+                title="Copy to clipboard">
+                <fa-icon [icon]="faCopy"></fa-icon>
+              </button>
+              <button type="button" (click)="onEditQuote(quote)" class="btn lightGrayBackground lightest editQuoteIcon"
+                data-toggle="modal" data-target=".edit-quote-modal-sm">
+                <fa-icon [icon]="faEdit"></fa-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #spinner>
+      <fa-icon [icon]="faAsterisk" [pulse]="true" size="3x" class="spinnerPosition"></fa-icon>
+      <span class="sr-only">Loading...</span>
+    </ng-template>
+  </div>
+</div>
+
+<div class="modal fade edit-quote-modal-sm" tabindex="-1"  role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Quote</h5>
+        <button type="button" #closeModalBtn class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div *ngIf="quote" class="modal-body">
+        <div [hidden]="!errorMsgOnEditQuote" class="alert alert-danger text-center" role="alert">
+          <small>Please, fill in all fields!</small>
+        </div>
+        <form (submit)="editQuote(quote)">
+          <div class="form-group">
+            <label for="quote"><small>Quote <span class="text-danger">*</span></small></label>
+            <textarea type="text" #quoteInput minlength="15" required class="form-control" id="quote" rows="10"
+              placeholder="Edit quote">{{quote.quote}}</textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="author"><small>Author</small></label>
+            <input type="text" #authorInput class="form-control" placeholder="Edit author" [value]="quote.author">
+          </div>
+
+          <div class="form-group">
+            <label for="cat"><small>Category <span class="text-danger">*</span></small></label>
+            <input type="text" #categoryInput required class="form-control" placeholder="Edit category" [value]="quote.cat">
+          </div>
+
+          <button type="submit" class="btn mx-auto text-dark d-flex justify-content-center lightGoldBackground">Edit
+            Quote</button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
